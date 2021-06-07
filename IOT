@@ -1,0 +1,46 @@
+#include "FirebaseESP8266.h"
+#include <ESP8266WiFi.h>
+#define FIREBASE_HOST "iot-led-lighting-default-rtdb.firebaseio.com/" 
+#define FIREBASE_AUTH "YJIUFItS3t9atA191JjM9xbtD1EU0KAfMNBlyFKB"
+#define WIFI_SSID "Incubator"
+#define WIFI_PASSWORD "Incubator#2013"
+int led = D5;  
+//Define FirebaseESP8266 data object
+FirebaseData firebaseData;
+FirebaseData ledData;
+FirebaseJson json;
+void setup()
+{
+
+  Serial.begin(9600);
+  pinMode(led,OUTPUT);
+  
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  Serial.print("Connecting to Wi-Fi");
+  while (WiFi.status() != WL_CONNECTED)
+  {
+    Serial.print(".");
+    delay(300);
+  }
+  Serial.println();
+  Serial.print("Connected with IP: ");
+  Serial.println(WiFi.localIP());
+  Serial.println();
+
+  Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);
+  Firebase.reconnectWiFi(true);
+
+}
+void loop() {
+ 
+  if (Firebase.getString(ledData, "/IoT LED Lighting")){
+    Serial.println(ledData.stringData());
+    if (ledData.stringData() == "1") {
+    digitalWrite(led, HIGH);
+    }
+  else if (ledData.stringData() == "0"){
+    digitalWrite(led, LOW);
+    }
+  }
+  delay(100);
+}
